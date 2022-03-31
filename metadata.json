@@ -2,7 +2,7 @@
   "name": "Git Naughtify",
   "description": "Get your Github/Gitlab notifications within the Gnome desktop environment.",
   "uuid": "gitnaughtify@reddudes.avinal.space",
-  "url": "https://github.com/orgs/RedDudes/",
+  "url": "https://github.com/RedDudes/git-naughtify/",
   "shell-version": [
     "41"
   ]
