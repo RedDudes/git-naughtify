@@ -26,31 +26,69 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Gio = imports.gi.Gio;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const _ = ExtensionUtils.gettext;
 
 const Indicator = GObject.registerClass(
-class Indicator extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, _('My Shiny Indicator'));
+    class Indicator extends PanelMenu.Button {
+        _init() {
+            super._init(0.0, _('My Shiny Indicator'));
+            let icon = new St.Icon({
+                style_class: 'system-status-icon',
+            })
+            icon.gicon = Gio.icon_new_for_string(`${Me.path}/giticon.svg`);
+            this.add_child(icon);
 
-        this.add_child(new St.Icon({
-            icon_name: 'face-smile-symbolic',
-            style_class: 'system-status-icon',
-        }));
+            // check whether user is logged into github account
+            var loggedIn = true;
+            if (loggedIn == true) {
+                this.notifPanel();
+            }
+            else {
+                this.loginPanel();
+            }
+        }
 
-        let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
-        item.connect('activate', () => {
-            Main.notify(_('Whatʼs up, folks?'));
-        });
-        this.menu.addMenuItem(item);
-    }
-});
+        // function to build notification panel once user logged into github account
+        notifPanel() {
+            let pr = new PopupMenu.PopupMenuItem(_('PR'));
+            let mention = new PopupMenu.PopupMenuItem(_('Mention'));
+            let review = new PopupMenu.PopupMenuItem(_('Review'));
+            let issue = new PopupMenu.PopupMenuItem(_('Assigned Issue'));
+            pr.connect('activate', () => {
+                Main.notify(_('Pr Notifications'));
+            });
+            mention.connect('activate', () => {
+                Main.notify(_('Mention Notifications'));
+            });
+            review.connect('activate', () => {
+                Main.notify(_('Review Notifications'));
+            });
+            issue.connect('activate', () => {
+                Main.notify(_('Issue Notifications'));
+            });
+            this.menu.addMenuItem(pr);
+            this.menu.addMenuItem(mention);
+            this.menu.addMenuItem(review);
+            this.menu.addMenuItem(issue);
+        }
+
+        // function to build login panel if user is not logged in
+        loginPanel() {
+            let login = new PopupMenu.PopupMenuItem(_('Please LogIn to your Github Account'));
+            login.connect('activate', () => {
+                //Main.notify(_('Pr Notifications'));
+            });
+            this.menu.addMenuItem(login);
+        }
+
+    });
 
 class Extension {
     constructor(uuid) {
         this._uuid = uuid;
-
         ExtensionUtils.initTranslations(GETTEXT_DOMAIN);
     }
 
